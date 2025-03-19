@@ -31,36 +31,19 @@ def hasty_model(t, state, params):
     gamma_y = params['gamma_y']
     a = params['a']
     s = params['s']
+    tau_y = params['tau_y']
     
     # Common term for both equations
     common_term = (1 + x**2 + a*s*x**4) / ((1 + x**2 + s*x**4) * (1 + y**4))
     
     # Derivatives
     dx_dt = common_term - gamma_x * x
-    dy_dt = common_term - gamma_y * y
+    dy_dt = (1/tau_y)*(common_term - gamma_y * y)
     
     return [dx_dt, dy_dt]
 
 def simulate_hasty_model(params, t_span, initial_conditions, n_points=1000):
-    """
-    Simulate the Hasty 2002 model with given parameters.
-    
-    Parameters:
-    ----------
-    params : dict
-        Dictionary of parameters
-    t_span : tuple
-        (t_start, t_end)
-    initial_conditions : array
-        [x0, y0]
-    n_points : int
-        Number of time points to output
-    
-    Returns:
-    --------
-    tuple
-        (t, states)
-    """
+
     t_eval = np.linspace(t_span[0], t_span[1], n_points)
     sol = solve_ivp(
         hasty_model,
@@ -197,7 +180,8 @@ if __name__ == "__main__":
         'gamma_x': 0.105,  # Degradation rate for CI
         'gamma_y': 0.036,  # Degradation rate for Lac
         'a': 11,           # Activation parameter
-        's': 2             # Relative binding affinity
+        's': 2,            # Relative binding affinity
+        'tau_y': 5         # Time constant for Lac
     }
     
     t_span = (0, 1000)
